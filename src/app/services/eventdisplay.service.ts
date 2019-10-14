@@ -38,16 +38,7 @@ export class EventdisplayService {
 
   public initVR(configuration: Configuration) {
     this.graphicsLibrary.init(configuration);
-    // Showing the UI elements
     this.ui.showUI(configuration);
-    // Animate loop
-    const animate = () => {
-      this.graphicsLibrary.updateControls();
-      this.ui.updateUI();
-      this.graphicsLibrary.render();
-    };
-    this.graphicsLibrary.setVRButton();
-    this.graphicsLibrary.setAnimationLoop(animate);
   }
 
   /**

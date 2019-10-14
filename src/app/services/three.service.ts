@@ -32,7 +32,7 @@ import {Cut} from './extras/cut.model';
 export class ThreeService {
 
   // Threejs Variables
-  private scene: Scene;
+  scene: Scene;
   private detector: Object3D;
   private sceneColor: THREE.Color | THREE.Texture;
   private perspectiveControls: OrbitControls;
@@ -117,6 +117,12 @@ export class ThreeService {
     this.setConfiguration(configuration);
   }
 
+  public initVR(configuration: Configuration) {
+    this.scene = new THREE.Scene();
+    this.scene.background = new THREE.Color('hsl(0, 0%, 100%)');
+    this.setLights();
+  }
+
   public updateControls() {
     this.controlsManager.activeControls.update();
     this.controlsManager.updateSync();
@@ -150,10 +156,9 @@ export class ThreeService {
     this.rendererManager.mainRenderer.domElement.className = 'ui-element';
     this.rendererManager.mainRenderer.domElement.id = 'three-canvas';
     let canvas = document.getElementById('eventDisplay');
-    if (canvas == null) {
-      canvas = document.body;
+    if (canvas != null) {
+      canvas.appendChild(this.rendererManager.mainRenderer.domElement);
     }
-    canvas.appendChild(this.rendererManager.mainRenderer.domElement);
   }
 
   /**
@@ -169,8 +174,10 @@ export class ThreeService {
     this.rendererManager.addRenderer(overlayRenderer);
     this.rendererManager.overlayRenderer = overlayRenderer;
 
-    let canvas = document.getElementById('eventDisplay');
-    canvas.appendChild(this.rendererManager.overlayRenderer.domElement);
+    const canvas = document.getElementById('eventDisplay');
+    if (canvas) {
+      canvas.appendChild(this.rendererManager.overlayRenderer.domElement);
+    }
   }
 
   /**
@@ -193,7 +200,7 @@ export class ThreeService {
     canvas.style.borderRadius = '8px';
     //canvas.style.pointerEvents = "none";
 
-    // Add listener 
+    // Add listener
     let offset: { x: number, y: number } = {x: 0, y: 0};
     let mouseDown: boolean = false;
 
@@ -408,11 +415,11 @@ export class ThreeService {
 
   //LOAD SCENE
   public loadGLTFDetector(scene_url: any) {
-    console.log("Loading ", scene_url)
+    console.log('Loading ', scene_url);
     const loader = new GLTFLoader();
     // @ts-ignore
     loader.load(scene_url, (gltf) => {
-      this.detector= gltf.scene;
+      this.detector = gltf.scene;
       this.scene.add(this.detector);
       this.setLights();
       this.darkBackground(false);
@@ -514,9 +521,9 @@ export class ThreeService {
   }
 
   public setDetectorOpacity(value: number) {
-    console.log("Changing detector opacity to ", value)
+    console.log('Changing detector opacity to ', value);
     if (value) {
-      this.detector.traverse( function (o: any) {
+      this.detector.traverse(function(o: any) {
         if (o.isMesh == true) {
           o.material.transparent = true;
           o.material.opacity = value;
@@ -647,20 +654,6 @@ export class ThreeService {
     if (document.getElementById('three-canvas')) {
       document.getElementById('three-canvas').addEventListener('mousedown', this.onDocumentMouseDown.bind(this));
     }
-  }
-
-  public setAnimationLoop(animate: () => void) {
-    this.rendererManager.mainRenderer.vr.enabled = true;
-    this.rendererManager.mainRenderer.setAnimationLoop(animate);
-  }
-
-  public setVRButton() {
-    const webVR = new WebVR();
-    let canvas = document.getElementById('eventDisplay');
-    if (canvas == null) {
-      canvas = document.body;
-    }
-    canvas.appendChild(webVR.createButton(this.rendererManager.mainRenderer, null));
   }
 
   public onDocumentMouseDown(event, selectedObject: any) {
